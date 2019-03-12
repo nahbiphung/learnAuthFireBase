@@ -33,4 +33,28 @@ export class LoginPageComponent implements OnInit {
         this.router.navigate(['/login']);
       });
   }
+
+  onClickGoogleLogin() {
+    this.authService.loginGoogle()
+    .then(res => {
+      this.toast.success('Dang nhap thanh cong', 'Success');
+      this.router.navigate(['/private']);
+    }).catch(err => {
+      console.log(err);
+      this.toast.error(err.message, 'Error');
+      this.router.navigate(['/login']);
+    });
+  }
+
+  onClickFacebookLogin() {
+    this.authService.loginFacebook()
+    .then( res => {
+      this.toast.success('Dang nhap thanh cong', 'Success');
+      this.router.navigate(['/private']);
+    }).catch(err => {
+      console.log(err);
+      this.toast.error(err.message, 'Error');
+      this.router.navigate(['/login']);
+    });
+  }
 }
