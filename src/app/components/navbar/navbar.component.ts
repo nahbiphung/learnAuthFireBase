@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-navbar',
@@ -13,7 +14,8 @@ export class NavbarComponent implements OnInit {
   public emailUser: string;
 
   constructor(
-    public authService: AuthService
+    public authService: AuthService,
+    public toast: ToastrService
   ) { }
 
   ngOnInit() {
@@ -30,5 +32,6 @@ export class NavbarComponent implements OnInit {
 
   onClickLogout() {
     this.authService.logout();
+    this.toast.success('Logout thanh cong', 'Logout');
   }
 }

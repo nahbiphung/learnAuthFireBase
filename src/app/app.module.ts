@@ -18,7 +18,8 @@ import { AngularFireAuthModule } from '@angular/fire/auth';
 import { environment } from '../environments/environment';
 import { AuthGuard } from './guards/auth.guard';
 
-
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
 @NgModule({
   declarations: [
     AppComponent,
@@ -34,7 +35,14 @@ import { AuthGuard } from './guards/auth.guard';
     AppRoutingModule,
     FormsModule,
     AngularFireAuthModule,
-    AngularFireModule.initializeApp(environment.firebase)
+    AngularFireModule.initializeApp(environment.firebase),
+    BrowserAnimationsModule,
+    ToastrModule.forRoot({
+      timeOut: 5000,
+      positionClass: 'toast-bottom-left',
+      maxOpened: 5,
+      preventDuplicates: true
+    })
   ],
   providers: [AuthService, AuthGuard],
   bootstrap: [AppComponent]

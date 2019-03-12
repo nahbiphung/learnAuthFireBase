@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-login-page',
@@ -14,7 +15,8 @@ export class LoginPageComponent implements OnInit {
 
   constructor(
     public authService: AuthService,
-    public router: Router
+    public router: Router,
+    public toast: ToastrService
   ) { }
 
   ngOnInit() {
@@ -22,10 +24,12 @@ export class LoginPageComponent implements OnInit {
 
   onSubmitLogin() {
     this.authService.loginEmail(this.email, this.password)
-      .then(res =>
-        this.router.navigate(['/private'])
-      ).catch(err => {
+      .then(res => {
+        this.toast.success('Dang nhap thanh cong', 'Success');
+        this.router.navigate(['/private']);
+      }).catch(err => {
         console.log(err);
+        this.toast.error(err.message, 'Error');
         this.router.navigate(['/login']);
       });
   }
