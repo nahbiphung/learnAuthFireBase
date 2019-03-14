@@ -13,6 +13,7 @@ export class NavbarComponent implements OnInit {
   public nameUser: string;
   public emailUser: string;
   public photoLink: string;
+  public idUser: string;
 
   constructor(
     public authService: AuthService,
@@ -23,6 +24,7 @@ export class NavbarComponent implements OnInit {
     this.authService.getAuth().subscribe( auth => {
       if (auth) {
         this.isLogin = true;
+        this.idUser = auth.uid;
         this.nameUser = auth.displayName;
         this.emailUser = auth.email;
         this.photoLink = auth.photoURL;

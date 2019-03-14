@@ -1,21 +1,52 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import * as firebase from 'firebase/app';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
+import { Router } from '@angular/router';
+
+import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
+import { Observable, of } from 'rxjs';
+
+interface User {
+  uid: string;
+  email: string;
+  photoURL?: string;
+  displayName?: string;
+  favoriteColor?: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
+  user: Observable<User>;
+
   constructor(
-    public afAuth: AngularFireAuth
-  ) { }
+    public afAuth: AngularFireAuth,
+    private afs: AngularFirestore,
+    private router: Router
+  ) {
+    //// Get auth data, then get firestore user document || null
+    // this.user = this.afAuth.authState.pipe(
+    //   switchMap(user => {
+    //     if (user) {
+    //       return this.afs.doc<User>(`users/${user.uid}`).valueChanges();
+    //     } else {
+    //       return of(null);
+    //     }
+    //   })
+    // );
+  }
 
   registerUser(email: string, pass: string) {
     return new Promise((resolve, reject) => {
       this.afAuth.auth.createUserWithEmailAndPassword(email, pass)
-      .then( userData => resolve(userData),
+      .then( userData => {
+        this.updateUserData(userData.user)
+        .then(() =>
+        this.router.navigate(['/private']));
+      },
       err => reject(err));
     });
   }
@@ -29,18 +60,50 @@ export class AuthService {
   }
 
   getAuth() {
-    return this.afAuth.authState.pipe(map(auth => auth));
+    return this.user = this.afAuth.authState.pipe(
+      switchMap(user => {
+        if (user) {
+          return this.afs.doc<User>(`users/${user.uid}`).valueChanges();
+        } else {
+          return of(null);
+        }
+      })
+    );
   }
 
   logout() {
-    return this.afAuth.auth.signOut();
+    return this.afAuth.auth.signOut().then(() => {
+      this.router.navigate(['/']);
+    });
   }
 
   loginGoogle() {
-    return this.afAuth.auth.signInWithPopup( new firebase.auth.GoogleAuthProvider());
+    return this.afAuth.auth.signInWithPopup( new firebase.auth.GoogleAuthProvider())
+    .then((credential) => {
+      this.updateUserData(credential.user);
+    });
+  }
+
+  private updateUserData(user) {
+    // Sets user data to firestore on login
+
+    const userRef: AngularFirestoreDocument<any> = this.afs.doc(`users/${user.uid}`);
+
+    const data: User = {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL
+    };
+
+    return userRef.set(data, { merge: true });
+
   }
 
   loginFacebook() {
-    return this.afAuth.auth.signInWithPopup( new firebase.auth.FacebookAuthProvider());
+    return this.afAuth.auth.signInWithPopup( new firebase.auth.FacebookAuthProvider())
+    .then((credential) => {
+      this.updateUserData(credential.user);
+    });
   }
 }

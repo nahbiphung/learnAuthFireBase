@@ -13,13 +13,17 @@ import { PrivatePageComponent } from './components/private-page/private-page.com
 import { NotFoundPageComponent } from './components/not-found-page/not-found-page.component';
 
 import { AuthService } from './services/auth.service';
-import { AngularFireModule } from '@angular/fire';
-import { AngularFireAuthModule } from '@angular/fire/auth';
+
 import { environment } from '../environments/environment';
 import { AuthGuard } from './guards/auth.guard';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
+
+import { AngularFireModule } from '@angular/fire';
+import { AngularFirestoreModule, FirestoreSettingsToken } from '@angular/fire/firestore';
+import { AngularFireAuthModule } from '@angular/fire/auth';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -34,6 +38,7 @@ import { ToastrModule } from 'ngx-toastr';
     BrowserModule,
     AppRoutingModule,
     FormsModule,
+    AngularFirestoreModule,
     AngularFireAuthModule,
     AngularFireModule.initializeApp(environment.firebase),
     BrowserAnimationsModule,
@@ -44,7 +49,7 @@ import { ToastrModule } from 'ngx-toastr';
       preventDuplicates: true
     })
   ],
-  providers: [AuthService, AuthGuard],
+  providers: [AuthService, { provide: FirestoreSettingsToken, useValue: {} }, AuthGuard],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
