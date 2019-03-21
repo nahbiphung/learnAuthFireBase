@@ -23,6 +23,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule, FirestoreSettingsToken } from '@angular/fire/firestore';
 import { AngularFireAuthModule } from '@angular/fire/auth';
+import { AdminComponent } from './components/admin/admin.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +34,7 @@ import { AngularFireAuthModule } from '@angular/fire/auth';
     LoginPageComponent,
     PrivatePageComponent,
     NotFoundPageComponent,
+    AdminComponent,
   ],
   imports: [
     BrowserModule,

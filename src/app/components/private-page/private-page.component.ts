@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-
+import { AuthService } from 'src/app/services/auth.service';
 @Component({
   selector: 'app-private-page',
   templateUrl: './private-page.component.html',
@@ -7,7 +7,11 @@ import { Component, OnInit } from '@angular/core';
 })
 export class PrivatePageComponent implements OnInit {
 
-  constructor() { }
+  user;
+
+  constructor(public authService: AuthService) {
+    this.authService.user.subscribe(user => this.user = user);
+  }
 
   ngOnInit() {
   }

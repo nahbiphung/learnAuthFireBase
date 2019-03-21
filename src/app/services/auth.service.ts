@@ -7,14 +7,6 @@ import { Router } from '@angular/router';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Observable, of } from 'rxjs';
 
-interface User {
-  uid: string;
-  email: string;
-  photoURL?: string;
-  displayName?: string;
-  favoriteColor?: string;
-}
-
 @Injectable({
   providedIn: 'root'
 })
@@ -28,15 +20,15 @@ export class AuthService {
     private router: Router
   ) {
     //// Get auth data, then get firestore user document || null
-    // this.user = this.afAuth.authState.pipe(
-    //   switchMap(user => {
-    //     if (user) {
-    //       return this.afs.doc<User>(`users/${user.uid}`).valueChanges();
-    //     } else {
-    //       return of(null);
-    //     }
-    //   })
-    // );
+    this.user = this.afAuth.authState.pipe(
+      switchMap(user => {
+        if (user) {
+          return this.afs.doc<User>(`users/${user.uid}`).valueChanges();
+        } else {
+          return of(null);
+        }
+      })
+    );
   }
 
   registerUser(email: string, pass: string) {
@@ -93,7 +85,12 @@ export class AuthService {
       uid: user.uid,
       email: user.email,
       displayName: user.displayName,
-      photoURL: user.photoURL
+      photoURL: user.photoURL,
+      roles: {
+        subcriber: true,
+        editor: false,
+        admin: false
+      }
     };
 
     return userRef.set(data, { merge: true });
@@ -104,6 +101,42 @@ export class AuthService {
     return this.afAuth.auth.signInWithPopup( new firebase.auth.FacebookAuthProvider())
     .then((credential) => {
       this.updateUserData(credential.user);
+    });
+  }
+
+  ///// Role-based Authorization //////
+
+  canRead(user: User): boolean {
+    const allowed = ['admin', 'editor', 'subscriber'];
+    return this.checkAuthorization(user, allowed);
+  }
+
+  canEdit(user: User): boolean {
+    const allowed = ['admin', 'editor'];
+    return this.checkAuthorization(user, allowed);
+  }
+
+  canDelete(user: User): boolean {
+    const allowed = ['admin'];
+    return this.checkAuthorization(user, allowed);
+  }
+
+  // determines if user has matching role
+  private checkAuthorization(user: User, allowedRoles: string[]): boolean {
+    if (!user) { return false; }
+
+    this.afs.doc<User>(`users/${user.uid}`).valueChanges().subscribe((res) => {
+      if (res) {
+        if (user.email === res.email) {
+          allowedRoles.forEach((rol) => {
+            if (res.roles[rol]) {
+              return true;
+            }
+            return false;
+          });
+        }
+        return false;
+      }
     });
   }
 }

@@ -6,12 +6,10 @@ import { map, take, tap } from 'rxjs/operators';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AuthService } from '../services/auth.service';
 
-
 @Injectable({
   providedIn: 'root'
 })
-export class AuthGuard implements CanActivate {
-
+export class AdminGuard implements CanActivate {
   constructor(
     public router: Router,
     public afAuth: AngularFireAuth,
@@ -19,18 +17,18 @@ export class AuthGuard implements CanActivate {
   ) {
 
   }
+
   canActivate(
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    return this.authService.afAuth.authState.pipe(
+    return this.authService.user.pipe(
       take(1),
-      map(user => !!(user && this.authService.canRead(user))), // <-- map to boolean
-      tap(authenticated => {
-      if (!authenticated) {
-        console.log('Access Denied. Must login to view content');
-        this.router.navigate(['/login']);
-      }
-    }));
+      map(user => !!(user && user.roles.admin)), // <-- map to boolean
+      tap(isAdmin => {
+        if (!isAdmin) {
+          console.log('Access denied - Admin only');
+          this.router.navigate(['/login']);
+        }
+      }));
   }
-
 }
