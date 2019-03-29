@@ -7,7 +7,7 @@ interface User {
   }
 
 interface Roles {
-    subcriber?: boolean;
+    subscriber?: boolean;
     editor?: boolean;
     admin?: boolean;
 }

@@ -34,20 +34,20 @@ export class AuthService {
   registerUser(email: string, pass: string) {
     return new Promise((resolve, reject) => {
       this.afAuth.auth.createUserWithEmailAndPassword(email, pass)
-      .then( userData => {
-        this.updateUserData(userData.user)
-        .then(() =>
-        this.router.navigate(['/private']));
-      },
-      err => reject(err));
+        .then(userData => {
+          this.updateUserData(userData.user)
+            .then(() =>
+              this.router.navigate(['/private']));
+        },
+          err => reject(err));
     });
   }
 
   loginEmail(email: string, pass: string) {
     return new Promise((resolve, reject) => {
       this.afAuth.auth.signInWithEmailAndPassword(email, pass)
-      .then( userData => resolve(userData),
-      err => reject(err));
+        .then(userData => resolve(userData),
+          err => reject(err));
     });
   }
 
@@ -70,10 +70,10 @@ export class AuthService {
   }
 
   loginGoogle() {
-    return this.afAuth.auth.signInWithPopup( new firebase.auth.GoogleAuthProvider())
-    .then((credential) => {
-      this.updateUserData(credential.user);
-    });
+    return this.afAuth.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+      .then((credential) => {
+        this.updateUserData(credential.user);
+      });
   }
 
   private updateUserData(user) {
@@ -87,7 +87,7 @@ export class AuthService {
       displayName: user.displayName,
       photoURL: user.photoURL,
       roles: {
-        subcriber: true,
+        subscriber: true,
         editor: false,
         admin: false
       }
@@ -98,10 +98,10 @@ export class AuthService {
   }
 
   loginFacebook() {
-    return this.afAuth.auth.signInWithPopup( new firebase.auth.FacebookAuthProvider())
-    .then((credential) => {
-      this.updateUserData(credential.user);
-    });
+    return this.afAuth.auth.signInWithPopup(new firebase.auth.FacebookAuthProvider())
+      .then((credential) => {
+        this.updateUserData(credential.user);
+      });
   }
 
   ///// Role-based Authorization //////
@@ -124,19 +124,11 @@ export class AuthService {
   // determines if user has matching role
   private checkAuthorization(user: User, allowedRoles: string[]): boolean {
     if (!user) { return false; }
-
-    this.afs.doc<User>(`users/${user.uid}`).valueChanges().subscribe((res) => {
-      if (res) {
-        if (user.email === res.email) {
-          allowedRoles.forEach((rol) => {
-            if (res.roles[rol]) {
-              return true;
-            }
-            return false;
-          });
-        }
-        return false;
+    for (const role of allowedRoles) {
+      if (user.roles[role]) {
+        return true;
       }
-    });
+      return false;
+    }
   }
 }
